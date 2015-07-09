@@ -1,7 +1,10 @@
 {
 	"color_scheme": "Packages/paper-Themes/Solarized (dark).tmTheme",
-	"scroll_past_end": true,
+	"default_line_ending": "unix",
+	"ensure_newline_at_eof_on_save": true,
 	"ignored_packages":
 	[
-	]
+	],
+	"scroll_past_end": true,
+	"trim_trailing_white_space_on_save": true
 }
