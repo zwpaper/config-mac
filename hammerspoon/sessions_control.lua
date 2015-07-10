@@ -12,14 +12,9 @@ Author: PapEr (zw.paper@gmail.com)
 
 --[[
 ToDo:
-* Save windows state when changing session
-	* save the current
-* Aotu delete when a window is closed#FFFFFF
 * Add a new session
 * delete a session
 * jump to a session easily
-* save session safely
-	save the sessions to a file
 * show windows in current session
 --]]
 
@@ -90,26 +85,3 @@ function sessionSwitchNext()
 	sessionSwitch(i)
 end
 hs.hotkey.bind({'cmd','alt','ctrl'}, ']', sessionSwitchNext)
-
-
-hs.hotkey.bind({"cmd","alt","ctrl"}, "N", function()
-	sessionsSave({
-	{'scraper', {}},
-	{'hammerspoon', {}},
-	{'github', {}},
-	{'wear', {}},
-	{'work', {}}
-})
-	-- sessionsSave(sessions)
-	hs.alert('save')
-end)
-
-hs.hotkey.bind({"cmd","alt","ctrl"}, "M", function()
-	sessionsRead()
-	hs.alert('read')
-end)
-
-hs.hotkey.bind({"cmd","alt","ctrl"}, "B", function()
-	sessionsSave(sessions)
-	hs.alert('save')
-end)

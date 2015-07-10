@@ -29,7 +29,7 @@ index_isFull = 2
 --[[
 Variable
 --]]
-current = 2
+current = 1
 local path_session_save = hs.configdir .. '/sessions.sav'
 
 
@@ -52,53 +52,89 @@ end
 
 
 function sessionSwitch(new)
-	hs.alert(new .. ' ' .. current)
+	hs.window.animationDuration = 0
 	for k, v in pairs(sessions[current][index_windows]) do
 		if v[index_win]:isVisible() then
-			sessions[current][index_windows][k] = v[index_win]:isFullScreen()
+			sessions[current][index_windows][k][index_isFull] = v[index_win]:isFullScreen()
 			if v[index_win]:isFullScreen() then
-				v[index_win]:setFullScreen()
+				v[index_win]:setFullScreen(false)
 				hs.timer.doAfter(2, function() v[index_win]:minimize() end);
 			else
 				v[index_win]:minimize()
 			end
-		else
+		elseif not hs.window.windowForID(v[index_win]:id()) then
 			table.remove(sessions[current], k)
 		end
 	end
 
 	for k, v in pairs(sessions[new][index_windows]) do
 		if v[index_win]:isMinimized() then v[index_win]:unminimize() end
-		if v[index_isFull] then hs.timer.doAfter(2, function() v[index_win]:setFullScreen() end) end
+		if v[index_isFull] then hs.timer.doAfter(1, function() v[index_win]:setFullScreen(true) end) end
 	end
 	current = new
-	hs.notify.new({title='Change session', informativeText=sessions[new][index_session] .. ' actived' .. current}):send():release()
+	hs.notify.new({title='Change session',
+				  informativeText=current.. ': ' .. sessions[new][index_session] .. ' actived'})
+				 :send():release()
+	sessionsSave(sessions)
 end
 
 
 function sessionsRead()
 	local sessions_file = assert(io.open(path_session_save, "r"))
 	sessions = {}
+	local close_win_counter = 0
 	for line in sessions_file:lines() do
 		if line:sub(1, 1) == '{' then
 			if #line < 2 then
-				hs.notify.new({title='Error', informativeText='No session name after "{"'}):send():release()
+				hs.notify.new({title='Read Error', informativeText='No session name after "{"'}):send():release()
 				error('No session name after "{"')
 			else
 				table.insert(sessions, {line:sub(2, -1), {}})
 			end
 		elseif line:sub(1, 1) == '}' then
 			if #line ~= 1 then
-				hs.notify.new({title='Error', informativeText='Session not end with "}"'}):send():release()
+				hs.notify.new({title='Read Error', informativeText='Session not end with "}"'}):send():release()
 				error('Session not end with "}"')
 			end
+			if close_win_counter ~= 0 then
+				hs.notify.new({title='Read Sessions',
+							  informativeText=close_win_counter .. ' in ' .. sessions[#sessions][index_session] .. ' closed'})
+				 			 :send():release()
+				close_win_counter = 0
+			end
+		elseif line:sub(1, 1) == '>' then
+			current = tonumber(line:match('%d+', 2))
 		else
-			local id, isFull
-			local err
-			err, id, isFull = pcall(string.unpack, 'LB', line)
-			if err then hs.alert('err ' .. id)
-			else hs.alert(id .. isFull) end
+			local id = line:match('%d+')
+			local isFull = line:match('%d', -1)
+			if not (id and isFull) then
+				hs.notify.new({title='Read Error', informativeText='Data in sav file is wrong'}):send():release()
+				error('Read windows error!')
+			end
+
+			local window = hs.window.windowForID(tonumber(id))
+			if not window then
+				close_win_counter = close_win_counter + 1
+			else
+				if isFull == '1' then
+					isFull = true
+				elseif isFull == '0' then
+					isFull = false
+				else
+					hs.notify.new({title='Read Error', informativeText=isFull .. ' is not a valid value, unset fullscreen'})
+								 :send():release()
+					isFull = false
+					-- error('Read is_window_full_screen error!')
+				end
+				table.insert(sessions[#sessions][index_windows], {window, isFull})
+			end
+
 		end
+	end
+
+	if current > #sessions or current < 1 then
+		hs.notify.new({title='Read Error', informativeText=current .. ' is not a valid session number'}):send():release()
+		error('session number error!')
 	end
 	sessionsShow()
 end
@@ -110,15 +146,16 @@ function sessionsSave(se)
 -- end a scope using '}'
 	local session_to_save = ''
 	for k, v in pairs(se) do
-		one_session = '{' .. v[index_session] .. '\n'
+		local one_session = '{' .. v[index_session] .. '\n'
 		for key, val in pairs(v[index_windows]) do
-			local id = val[index_win]:id()
-			local isFull = (val[index_isFull] and '1' or '0')
-			one_session = (one_session .. tostring(id) .. ':' tostring(isFull) .. '\n')
+			one_session = one_session .. val[index_win]:id() .. ':' .. (val[index_isFull] and '1' or '0') .. '\n'
 		end
 		one_session = one_session .. '}' .. '\n'
 		session_to_save = session_to_save .. one_session
 	end
+
+	session_to_save = session_to_save .. '>' .. current .. '\n'
+
 	local sessions_file = assert(io.open(path_session_save, "w"))
 	sessions_file:write(session_to_save)
 	sessions_file:flush()
