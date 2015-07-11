@@ -33,11 +33,27 @@ sessionsRead()
 
 
 --Show sessions list
-hs.hotkey.bind({'cmd', 'alt', 'ctrl'}, 'I', sessionsShow)
+hs.hotkey.bind(key_fn, key_session_show, sessionsShow)
+
+
+function sessionSwitchPrv()
+	local i = current - 1
+	if current == 1 then i = #sessions end
+	sessionSwitch(i)
+end
+hs.hotkey.bind(key_fn, key_session_pre, sessionSwitchPrv)
+
+
+function sessionSwitchNext()
+	local i = current + 1
+	if current == #sessions then i = 1 end
+	sessionSwitch(i)
+end
+hs.hotkey.bind(key_fn, key_session_next, sessionSwitchNext)
 
 
 --Add current window into session
-hs.hotkey.bind({'cmd', 'alt', 'ctrl'}, 'O', function()
+hs.hotkey.bind(key_fn, key_add_to_curr, function()
 	local win = hs.window.focusedWindow()
 	if win:id() then
 		if findInList(sessions[current][index_windows], win) then
@@ -58,7 +74,7 @@ hs.hotkey.bind({'cmd', 'alt', 'ctrl'}, 'O', function()
 end)
 
 
-hs.hotkey.bind({'cmd', 'alt', 'ctrl'}, 'P', function()
+hs.hotkey.bind(key_fn, key_del_from_curr, function()
 	local win = hs.window.focusedWindow()
 	if win:id() then
 		local key = findInList(sessions[current][index_windows], win)
@@ -75,19 +91,3 @@ hs.hotkey.bind({'cmd', 'alt', 'ctrl'}, 'P', function()
 	end
 
 end)
-
-
-function sessionSwitchPrv()
-	local i = current - 1
-	if current == 1 then i = #sessions end
-	sessionSwitch(i)
-end
-hs.hotkey.bind({'cmd','alt','ctrl'}, '[', sessionSwitchPrv)
-
-
-function sessionSwitchNext()
-	local i = current + 1
-	if current == #sessions then i = 1 end
-	sessionSwitch(i)
-end
-hs.hotkey.bind({'cmd','alt','ctrl'}, ']', sessionSwitchNext)

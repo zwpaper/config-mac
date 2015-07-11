@@ -31,7 +31,14 @@ Variable
 --]]
 current = 1
 local path_session_save = hs.configdir .. '/sessions.sav'
+local path_config = hs.configdir .. '/sessions.cfg'
 
+key_fn = {'cmd','alt','ctrl'}
+key_session_show = 'P'
+key_session_pre = '['
+key_session_next = ']'
+key_win_add_to_curr = ';'
+key_win_del_from_curr = "'"
 
 --[[
 Functions
@@ -80,10 +87,10 @@ end
 
 
 function sessionsRead()
-	local sessions_file = assert(io.open(path_session_save, "r"))
+	local file_sessions = assert(io.open(path_session_save, "r"))
 	sessions = {}
 	local close_win_counter = 0
-	for line in sessions_file:lines() do
+	for line in file_sessions:lines() do
 		if line:sub(1, 1) == '{' then
 			if #line < 2 then
 				hs.notify.new({title='Read Error', informativeText='No session name after "{"'}):send():release()
@@ -156,10 +163,10 @@ function sessionsSave(se)
 
 	session_to_save = session_to_save .. '>' .. current .. '\n'
 
-	local sessions_file = assert(io.open(path_session_save, "w"))
-	sessions_file:write(session_to_save)
-	sessions_file:flush()
-	sessions_file:close()
+	local file_sessions = assert(io.open(path_session_save, "w"))
+	file_sessions:write(session_to_save)
+	file_sessions:flush()
+	file_sessions:close()
 end
 
 
@@ -172,3 +179,9 @@ function findInList(list, item)
 	end
 	return nil
 end
+
+--[[
+function ConfigRead()
+	local file_config = assert(io.open(path_session_save, "r"))
+
+--]]
