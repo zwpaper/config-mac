@@ -1,0 +1,3 @@
+[submodule "hammerspoon/sessions-control-hammerspoon"]
+	path = hammerspoon/sessions-control-hammerspoon
+	url = git@github.com:zwpaper/sessions-control-hammerspoon.git
