@@ -1,7 +1,7 @@
 ;; Vars
 (setq-default indent-tabs-mode nil)
 (setq-default tab-width 4)
-(custom-set-faces)
+
 
 ;; Python
 (setq python-shell-interpreter "ipython3")
@@ -10,6 +10,7 @@
 
 ;; C
 (setq-default c-basic-offset 4)
+
 
 ;; Whitespace
 (require 'whitespace)
@@ -20,8 +21,10 @@
 ;; Hook
 (add-hook 'before-save-hook 'delete-trailing-whitespace)
 
+
 ;; Keys bindings
-(global-set-key (kbd "C-w") 'kill-whole-line)
+(global-set-key (kbd "C-<backspace>") 'kill-whole-line)
+
 
 ;; Package install
 (require 'package)
@@ -35,8 +38,28 @@
 
 ;; Packages
 
+
 ;; auto-complete
 (ac-config-default)
 
 ;; Elpy
 (elpy-enable)
+
+;; Theme
+(add-to-list 'load-path "~/.emacs.d/themes")
+(require 'color-theme)
+(color-theme-initialize)
+(color-theme-euphoria)
+
+(custom-set-faces
+ ;; custom-set-faces was added by Custom.
+ ;; If you edit it by hand, you could mess it up, so be careful.
+ ;; Your init file should contain only one such instance.
+ ;; If there is more than one, they won't work right.
+ )
+(custom-set-variables
+ ;; custom-set-variables was added by Custom.
+ ;; If you edit it by hand, you could mess it up, so be careful.
+ ;; Your init file should contain only one such instance.
+ ;; If there is more than one, they won't work right.
+ '(tool-bar-mode nil))
